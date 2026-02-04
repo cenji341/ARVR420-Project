@@ -1,0 +1,76 @@
+############################################
+# UNITY PROJECT (nested)
+############################################
+
+UnityProject/My project/[Ll]ibrary/
+UnityProject/My project/[Tt]emp/
+UnityProject/My project/[Oo]bj/
+UnityProject/My project/[Bb]uild/
+UnityProject/My project/[Bb]uilds/
+UnityProject/My project/[Ll]ogs/
+UnityProject/My project/[Uu]ser[Ss]ettings/
+UnityProject/My project/[Mm]emoryCaptures/
+UnityProject/My project/[Rr]ecordings/
+
+############################################
+# GENERAL UNITY IGNORES (safe to keep)
+############################################
+
+*.log
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+############################################
+# UNITY GENERATED META / CRASH FILES
+############################################
+
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+mono_crash.*
+
+############################################
+# BUILDS
+############################################
+
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+############################################
+# IDE / TOOLING
+############################################
+
+.vs/
+.gradle/
+.consulo/
+ExportedObj/
+*.DotSettings.user
+
+############################################
+# ADDRESSABLES / TEST / VISUAL SCRIPTING
+############################################
+
+UnityProject/My project/Assets/StreamingAssets/aa*
+UnityProject/My project/Assets/AddressableAssetsData/**/addressables_content_state.bin
+UnityProject/My project/Assets/Addressables_Temp*
+UnityProject/My project/Assets/Unity.VisualScripting.Generated/
+
+############################################
+# OPTIONAL (leave commented unless needed)
+############################################
+# UnityProject/My project/Assets/AssetStoreTools*
