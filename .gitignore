@@ -1,76 +1,77 @@
 ############################################
-# UNITY PROJECT (nested)
+# UNITY (ONLY under /UnityProject)
 ############################################
 
-UnityProject/My project/[Ll]ibrary/
-UnityProject/My project/[Tt]emp/
-UnityProject/My project/[Oo]bj/
-UnityProject/My project/[Bb]uild/
-UnityProject/My project/[Bb]uilds/
-UnityProject/My project/[Ll]ogs/
-UnityProject/My project/[Uu]ser[Ss]ettings/
-UnityProject/My project/[Mm]emoryCaptures/
-UnityProject/My project/[Rr]ecordings/
+# Unity generated folders
+/UnityProject/**/[Ll]ibrary/
+/UnityProject/**/[Tt]emp/
+/UnityProject/**/[Oo]bj/
+/UnityProject/**/[Bb]uild/
+/UnityProject/**/[Bb]uilds/
+/UnityProject/**/[Ll]ogs/
+/UnityProject/**/[Uu]ser[Ss]ettings/
+/UnityProject/**/[Mm]emoryCaptures/
+/UnityProject/**/[Rr]ecordings/
 
 ############################################
-# GENERAL UNITY IGNORES (safe to keep)
+# GENERAL UNITY FILES (scoped to UnityProject)
 ############################################
 
-*.log
-*.csproj
-*.unityproj
-*.sln
-*.suo
-*.tmp
-*.user
-*.userprefs
-*.pidb
-*.booproj
-*.svd
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
+/UnityProject/**/*.log
+/UnityProject/**/*.csproj
+/UnityProject/**/*.unityproj
+/UnityProject/**/*.sln
+/UnityProject/**/*.suo
+/UnityProject/**/*.tmp
+/UnityProject/**/*.user
+/UnityProject/**/*.userprefs
+/UnityProject/**/*.pidb
+/UnityProject/**/*.booproj
+/UnityProject/**/*.svd
+/UnityProject/**/*.pdb
+/UnityProject/**/*.mdb
+/UnityProject/**/*.opendb
+/UnityProject/**/*.VC.db
 
 ############################################
-# UNITY GENERATED META / CRASH FILES
+# UNITY GENERATED META / CRASH FILES (scoped)
 ############################################
 
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
-sysinfo.txt
-mono_crash.*
+/UnityProject/**/*.pidb.meta
+/UnityProject/**/*.pdb.meta
+/UnityProject/**/*.mdb.meta
+/UnityProject/**/sysinfo.txt
+/UnityProject/**/mono_crash.*
 
 ############################################
-# BUILDS
+# BUILDS (scoped)
 ############################################
 
-*.apk
-*.aab
-*.unitypackage
-*.app
+/UnityProject/**/*.apk
+/UnityProject/**/*.aab
+/UnityProject/**/*.unitypackage
+/UnityProject/**/*.app
 
 ############################################
-# IDE / TOOLING
+# IDE / TOOLING (scoped)
 ############################################
 
-.vs/
-.gradle/
-.consulo/
-ExportedObj/
-*.DotSettings.user
+/UnityProject/**/.vs/
+/UnityProject/**/.gradle/
+/UnityProject/**/.consulo/
+/UnityProject/**/ExportedObj/
+/UnityProject/**/*.DotSettings.user
 
 ############################################
-# ADDRESSABLES / TEST / VISUAL SCRIPTING
+# ADDRESSABLES / VISUAL SCRIPTING (scoped)
 ############################################
 
-UnityProject/My project/Assets/StreamingAssets/aa*
-UnityProject/My project/Assets/AddressableAssetsData/**/addressables_content_state.bin
-UnityProject/My project/Assets/Addressables_Temp*
-UnityProject/My project/Assets/Unity.VisualScripting.Generated/
+/UnityProject/**/Assets/StreamingAssets/aa*
+/UnityProject/**/Assets/AddressableAssetsData/**/addressables_content_state.bin
+/UnityProject/**/Assets/Addressables_Temp*
+/UnityProject/**/Assets/Unity.VisualScripting.Generated/
 
 ############################################
-# OPTIONAL (leave commented unless needed)
+# OPTIONAL
 ############################################
-# UnityProject/My project/Assets/AssetStoreTools*
+# /UnityProject/**/Assets/AssetStoreTools*
