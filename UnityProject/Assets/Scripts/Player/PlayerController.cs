@@ -39,6 +39,21 @@ public class PlayerController : MonoBehaviour
     [InspectorName("Lean Rotation Speed")]
     public float leanRotationSpeed = 40f;
 
+    [InspectorName("Lean Offset")]
+    public float leanOffset = 0.25f;
+
+    [InspectorName("Lean Smooth Time")]
+    public float leanSmoothTime = 0.08f;
+
+    [InspectorName("Lean Collision Radius")]
+    public float leanCollisionRadius = 0.12f;
+
+    [InspectorName("Lean Collision Mask")]
+    public LayerMask leanCollisionMask = ~0;
+
+    [InspectorName("Lean Collision Padding")]
+    public float leanCollisionPadding = 0.01f;
+
     CharacterController characterController;
 
     struct Binding
@@ -60,6 +75,8 @@ public class PlayerController : MonoBehaviour
 
     float lookSpeed = 5f;
     float cameraPitch;
+
+    float viewYaw;
 
     [Header("Input Events")]
     [InspectorName("On Walk Forward Pressed")]
@@ -99,6 +116,14 @@ public class PlayerController : MonoBehaviour
     float headBaseX;
     float headBaseY;
 
+    Vector3 headBaseLocalPos;
+
+    float currentLeanRoll;
+    float currentLeanOffset;
+
+    float leanRollVel;
+    float leanOffsetVel;
+
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
@@ -111,6 +136,7 @@ public class PlayerController : MonoBehaviour
             Vector3 e = headRoot.localEulerAngles;
             headBaseX = NormalizeAngle(e.x);
             headBaseY = NormalizeAngle(e.y);
+            headBaseLocalPos = headRoot.localPosition;
         }
     }
 
@@ -144,17 +170,53 @@ public class PlayerController : MonoBehaviour
         bool leftHeld = GetAction("leanLeft");
         bool rightHeld = GetAction("leanRight");
 
-        float targetZ = 0f;
+        float targetDir = 0f;
+        if (leftHeld && !rightHeld) targetDir = 1f;
+        else if (rightHeld && !leftHeld) targetDir = -1f;
 
-        if (leftHeld && !rightHeld) targetZ = leanAngle;
-        else if (rightHeld && !leftHeld) targetZ = -leanAngle;
+        float targetRoll = targetDir * leanAngle;
 
-        Vector3 e = headRoot.localEulerAngles;
-        float currentZ = NormalizeAngle(e.z);
+        float targetOffset = -targetDir * leanOffset;
 
-        float newZ = Mathf.MoveTowards(currentZ, targetZ, leanRotationSpeed * Time.deltaTime);
+        float newRoll = Mathf.SmoothDamp(currentLeanRoll, targetRoll, ref leanRollVel, leanSmoothTime, Mathf.Infinity, Time.deltaTime);
+        float newOffset = Mathf.SmoothDamp(currentLeanOffset, targetOffset, ref leanOffsetVel, leanSmoothTime, Mathf.Infinity, Time.deltaTime);
 
-        headRoot.localRotation = Quaternion.Euler(headBaseX, headBaseY, newZ);
+        float safeOffset = newOffset;
+
+        if (playerCamera != null && Mathf.Abs(newOffset) > 0.0001f)
+        {
+            Vector3 origin = playerCamera.position;
+            Vector3 desired = origin + (transform.right * newOffset);
+            Vector3 dir = desired - origin;
+            float dist = dir.magnitude;
+
+            if (dist > 0.0001f)
+            {
+                dir /= dist;
+
+                if (Physics.SphereCast(origin, leanCollisionRadius, dir, out RaycastHit hit, dist, leanCollisionMask, QueryTriggerInteraction.Ignore))
+                {
+                    float allowed = hit.distance - leanCollisionPadding;
+                    if (allowed < 0f) allowed = 0f;
+                    safeOffset = Mathf.Sign(newOffset) * allowed;
+                }
+            }
+        }
+
+        currentLeanRoll = newRoll;
+        currentLeanOffset = safeOffset;
+
+        headRoot.localRotation = Quaternion.Euler(headBaseX, headBaseY, 0f);
+
+        Vector3 p = headBaseLocalPos;
+        p.x += currentLeanOffset;
+        headRoot.localPosition = p;
+
+        if (Mathf.Abs(currentLeanRoll) < 0.01f && Mathf.Abs(viewYaw) > 0.0001f)
+        {
+            transform.Rotate(0f, viewYaw, 0f, Space.Self);
+            viewYaw = 0f;
+        }
     }
 
     void UpdateMoveSpeedBar()
@@ -287,12 +349,33 @@ public class PlayerController : MonoBehaviour
         float mouseX = delta.x * lookSpeed * Time.deltaTime;
         float mouseY = delta.y * lookSpeed * Time.deltaTime;
 
-        transform.Rotate(0f, mouseX, 0f, Space.Self);
-
         cameraPitch -= mouseY;
         cameraPitch = Mathf.Clamp(cameraPitch, -89f, 89f);
 
-        playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
+        bool isLeaning = Mathf.Abs(currentLeanRoll) > 0.01f || Mathf.Abs(currentLeanOffset) > 0.0001f;
+
+        if (isLeaning)
+        {
+            viewYaw += mouseX;
+
+            Quaternion roll = Quaternion.AngleAxis(currentLeanRoll, Vector3.forward);
+            Quaternion yaw = Quaternion.AngleAxis(viewYaw, Vector3.up);
+            Quaternion pitch = Quaternion.AngleAxis(cameraPitch, Vector3.right);
+
+            playerCamera.localRotation = roll * yaw * pitch;
+        }
+        else
+        {
+            if (Mathf.Abs(viewYaw) > 0.0001f)
+            {
+                transform.Rotate(0f, viewYaw, 0f, Space.Self);
+                viewYaw = 0f;
+            }
+
+            transform.Rotate(0f, mouseX, 0f, Space.Self);
+
+            playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
+        }
     }
 
     UnityEvent GetEventForAction(string actionName)
@@ -382,6 +465,11 @@ public class PlayerControllerEditor : Editor
 
     SerializedProperty leanAngleProp;
     SerializedProperty leanRotationSpeedProp;
+    SerializedProperty leanOffsetProp;
+    SerializedProperty leanSmoothTimeProp;
+    SerializedProperty leanCollisionRadiusProp;
+    SerializedProperty leanCollisionMaskProp;
+    SerializedProperty leanCollisionPaddingProp;
 
     SerializedProperty onWalkForwardPressedProp;
     SerializedProperty onWalkBackwardPressedProp;
@@ -410,6 +498,11 @@ public class PlayerControllerEditor : Editor
 
         leanAngleProp = serializedObject.FindProperty("leanAngle");
         leanRotationSpeedProp = serializedObject.FindProperty("leanRotationSpeed");
+        leanOffsetProp = serializedObject.FindProperty("leanOffset");
+        leanSmoothTimeProp = serializedObject.FindProperty("leanSmoothTime");
+        leanCollisionRadiusProp = serializedObject.FindProperty("leanCollisionRadius");
+        leanCollisionMaskProp = serializedObject.FindProperty("leanCollisionMask");
+        leanCollisionPaddingProp = serializedObject.FindProperty("leanCollisionPadding");
 
         onWalkForwardPressedProp = serializedObject.FindProperty("onWalkForwardPressed");
         onWalkBackwardPressedProp = serializedObject.FindProperty("onWalkBackwardPressed");
@@ -445,6 +538,11 @@ public class PlayerControllerEditor : Editor
 
         EditorGUILayout.PropertyField(leanAngleProp, new GUIContent("Lean Angle"));
         EditorGUILayout.PropertyField(leanRotationSpeedProp, new GUIContent("Lean Rotation Speed"));
+        EditorGUILayout.PropertyField(leanOffsetProp, new GUIContent("Lean Offset"));
+        EditorGUILayout.PropertyField(leanSmoothTimeProp, new GUIContent("Lean Smooth Time"));
+        EditorGUILayout.PropertyField(leanCollisionRadiusProp, new GUIContent("Lean Collision Radius"));
+        EditorGUILayout.PropertyField(leanCollisionMaskProp, new GUIContent("Lean Collision Mask"));
+        EditorGUILayout.PropertyField(leanCollisionPaddingProp, new GUIContent("Lean Collision Padding"));
 
         EditorGUILayout.Space(6);
 
