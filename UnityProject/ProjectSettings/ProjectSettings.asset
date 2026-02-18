@@ -879,12 +879,12 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 0
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 6d55ef82-23a0-47ab-a069-50708937d1e0
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
+  projectName: ARVR420_Project
   organizationId: cenji-as-publisher
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
