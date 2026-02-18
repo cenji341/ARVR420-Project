@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     [InspectorName("HeadRoot")]
     public Transform headRoot;
 
+    [InspectorName("BobRoot")]
+    public Transform bobRoot;
+
     [Header("Movement")]
     public float moveSpeed = 5f;
 
@@ -53,6 +56,46 @@ public class PlayerController : MonoBehaviour
 
     [InspectorName("Lean Collision Padding")]
     public float leanCollisionPadding = 0.01f;
+
+    [Header("Head Bob")]
+    [InspectorName("Enable Head Bob")]
+    public bool enableHeadBob = true;
+
+    [InspectorName("Require Grounded For Bob")]
+    public bool requireGroundedForBob = true;
+
+    [InspectorName("Use Physics Ground Check")]
+    public bool usePhysicsGroundCheck = true;
+
+    [InspectorName("Ground Check Distance")]
+    public float groundCheckDistance = 0.08f;
+
+    [InspectorName("Ground Check Radius Scale")]
+    public float groundCheckRadiusScale = 0.95f;
+
+    [InspectorName("Ground Check Mask")]
+    public LayerMask groundCheckMask = ~0;
+
+    [InspectorName("Bob Min Amplitude")]
+    public float bobMinAmplitude = 0.015f;
+
+    [InspectorName("Bob Max Amplitude")]
+    public float bobMaxAmplitude = 0.045f;
+
+    [InspectorName("Bob Min Frequency")]
+    public float bobMinFrequency = 6f;
+
+    [InspectorName("Bob Max Frequency")]
+    public float bobMaxFrequency = 12f;
+
+    [InspectorName("Bob Return Speed")]
+    public float bobReturnSpeed = 12f;
+
+    [InspectorName("Bob Axis Multipliers (X,Y,Z)")]
+    public Vector3 bobAxisMultipliers = new Vector3(0.6f, 1f, 0.35f);
+
+    [InspectorName("Bob Z Phase Multiplier")]
+    public float bobZPhaseMultiplier = 1.0f;
 
     CharacterController characterController;
 
@@ -117,6 +160,8 @@ public class PlayerController : MonoBehaviour
     float headBaseY;
 
     Vector3 headBaseLocalPos;
+    Vector3 bobBaseLocalPos;
+    Vector3 cameraBaseLocalPos;
 
     float currentLeanRoll;
     float currentLeanOffset;
@@ -124,12 +169,18 @@ public class PlayerController : MonoBehaviour
     float leanRollVel;
     float leanOffsetVel;
 
+    float bobPhase;
+    Vector3 currentBobLocalOffset;
+
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
 
         if (playerCamera != null)
+        {
             cameraPitch = NormalizeAngle(playerCamera.localEulerAngles.x);
+            cameraBaseLocalPos = playerCamera.localPosition;
+        }
 
         if (headRoot != null)
         {
@@ -138,6 +189,9 @@ public class PlayerController : MonoBehaviour
             headBaseY = NormalizeAngle(e.y);
             headBaseLocalPos = headRoot.localPosition;
         }
+
+        if (bobRoot != null)
+            bobBaseLocalPos = bobRoot.localPosition;
     }
 
     void Start()
@@ -161,6 +215,30 @@ public class PlayerController : MonoBehaviour
         HandleWalking();
         UpdateMoveSpeedBar();
         HandleLean();
+        HandleHeadBob();
+    }
+
+    void LateUpdate()
+    {
+        ApplyRigPose();
+    }
+
+    bool IsGroundedForBob()
+    {
+        if (characterController == null) return false;
+
+        if (!usePhysicsGroundCheck)
+            return characterController.isGrounded;
+
+        float radius = characterController.radius * groundCheckRadiusScale;
+        float height = characterController.height;
+
+        Vector3 centerWorld = transform.TransformPoint(characterController.center);
+
+        float bottom = centerWorld.y - (height * 0.5f) + radius;
+        Vector3 origin = new Vector3(centerWorld.x, bottom + 0.02f, centerWorld.z);
+
+        return Physics.SphereCast(origin, radius, Vector3.down, out _, groundCheckDistance, groundCheckMask, QueryTriggerInteraction.Ignore);
     }
 
     void HandleLean()
@@ -175,7 +253,6 @@ public class PlayerController : MonoBehaviour
         else if (rightHeld && !leftHeld) targetDir = -1f;
 
         float targetRoll = targetDir * leanAngle;
-
         float targetOffset = -targetDir * leanOffset;
 
         float newRoll = Mathf.SmoothDamp(currentLeanRoll, targetRoll, ref leanRollVel, leanSmoothTime, Mathf.Infinity, Time.deltaTime);
@@ -206,16 +283,98 @@ public class PlayerController : MonoBehaviour
         currentLeanRoll = newRoll;
         currentLeanOffset = safeOffset;
 
-        headRoot.localRotation = Quaternion.Euler(headBaseX, headBaseY, 0f);
-
-        Vector3 p = headBaseLocalPos;
-        p.x += currentLeanOffset;
-        headRoot.localPosition = p;
-
         if (Mathf.Abs(currentLeanRoll) < 0.01f && Mathf.Abs(viewYaw) > 0.0001f)
         {
             transform.Rotate(0f, viewYaw, 0f, Space.Self);
             viewYaw = 0f;
+        }
+    }
+
+    void HandleHeadBob()
+    {
+        if (!enableHeadBob)
+        {
+            currentBobLocalOffset = Vector3.zero;
+            return;
+        }
+
+        bool grounded = IsGroundedForBob();
+
+        if (requireGroundedForBob && !grounded)
+        {
+            currentBobLocalOffset = Vector3.Lerp(currentBobLocalOffset, Vector3.zero, bobReturnSpeed * Time.deltaTime);
+            bobPhase = Mathf.Lerp(bobPhase, 0f, bobReturnSpeed * Time.deltaTime);
+            return;
+        }
+
+        float forward = 0f;
+        if (GetAction("walkForward")) forward += 1f;
+        if (GetAction("walkBackward")) forward -= 1f;
+
+        float right = 0f;
+        if (GetAction("walkRight")) right += 1f;
+        if (GetAction("walkLeft")) right -= 1f;
+
+        bool moving = (Mathf.Abs(forward) + Mathf.Abs(right)) > 0.001f;
+
+        float clamped = Mathf.Clamp(moveSpeed, minMoveSpeed, maxMoveSpeed);
+        float speed01 = Mathf.InverseLerp(minMoveSpeed, maxMoveSpeed, clamped);
+
+        float amp = Mathf.Lerp(bobMinAmplitude, bobMaxAmplitude, speed01);
+        float freq = Mathf.Lerp(bobMinFrequency, bobMaxFrequency, speed01);
+
+        if (moving)
+        {
+            bobPhase += Time.deltaTime * freq;
+
+            float x = Mathf.Cos(bobPhase * 0.5f) * (amp * bobAxisMultipliers.x);
+            float y = Mathf.Abs(Mathf.Sin(bobPhase)) * (amp * bobAxisMultipliers.y);
+            float z = Mathf.Sin(bobPhase * bobZPhaseMultiplier) * (amp * bobAxisMultipliers.z);
+
+            currentBobLocalOffset.x = x;
+            currentBobLocalOffset.y = y;
+            currentBobLocalOffset.z = z;
+        }
+        else
+        {
+            currentBobLocalOffset = Vector3.Lerp(currentBobLocalOffset, Vector3.zero, bobReturnSpeed * Time.deltaTime);
+            bobPhase = Mathf.Lerp(bobPhase, 0f, bobReturnSpeed * Time.deltaTime);
+        }
+    }
+
+    void ApplyRigPose()
+    {
+        if (headRoot != null)
+        {
+            Vector3 p = headBaseLocalPos;
+            p.x += currentLeanOffset;
+            headRoot.localPosition = p;
+
+            headRoot.localRotation = Quaternion.Euler(headBaseX, headBaseY, 0f);
+        }
+
+        if (bobRoot != null)
+        {
+            bobRoot.localPosition = bobBaseLocalPos + currentBobLocalOffset;
+        }
+
+        if (playerCamera != null)
+        {
+            playerCamera.localPosition = cameraBaseLocalPos;
+
+            bool isLeaning = Mathf.Abs(currentLeanRoll) > 0.01f || Mathf.Abs(currentLeanOffset) > 0.0001f;
+
+            if (isLeaning)
+            {
+                Quaternion roll = Quaternion.AngleAxis(currentLeanRoll, Vector3.forward);
+                Quaternion yaw = Quaternion.AngleAxis(viewYaw, Vector3.up);
+                Quaternion pitch = Quaternion.AngleAxis(cameraPitch, Vector3.right);
+                playerCamera.localRotation = roll * yaw * pitch;
+            }
+            else
+            {
+                playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
+            }
         }
     }
 
@@ -357,12 +516,6 @@ public class PlayerController : MonoBehaviour
         if (isLeaning)
         {
             viewYaw += mouseX;
-
-            Quaternion roll = Quaternion.AngleAxis(currentLeanRoll, Vector3.forward);
-            Quaternion yaw = Quaternion.AngleAxis(viewYaw, Vector3.up);
-            Quaternion pitch = Quaternion.AngleAxis(cameraPitch, Vector3.right);
-
-            playerCamera.localRotation = roll * yaw * pitch;
         }
         else
         {
@@ -373,8 +526,6 @@ public class PlayerController : MonoBehaviour
             }
 
             transform.Rotate(0f, mouseX, 0f, Space.Self);
-
-            playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
         }
     }
 
@@ -457,6 +608,7 @@ public class PlayerControllerEditor : Editor
     SerializedProperty controlDataProp;
     SerializedProperty playerCameraProp;
     SerializedProperty headRootProp;
+    SerializedProperty bobRootProp;
 
     SerializedProperty moveSpeedProp;
     SerializedProperty minMoveSpeedProp;
@@ -470,6 +622,20 @@ public class PlayerControllerEditor : Editor
     SerializedProperty leanCollisionRadiusProp;
     SerializedProperty leanCollisionMaskProp;
     SerializedProperty leanCollisionPaddingProp;
+
+    SerializedProperty enableHeadBobProp;
+    SerializedProperty requireGroundedForBobProp;
+    SerializedProperty usePhysicsGroundCheckProp;
+    SerializedProperty groundCheckDistanceProp;
+    SerializedProperty groundCheckRadiusScaleProp;
+    SerializedProperty groundCheckMaskProp;
+    SerializedProperty bobMinAmplitudeProp;
+    SerializedProperty bobMaxAmplitudeProp;
+    SerializedProperty bobMinFrequencyProp;
+    SerializedProperty bobMaxFrequencyProp;
+    SerializedProperty bobReturnSpeedProp;
+    SerializedProperty bobAxisMultipliersProp;
+    SerializedProperty bobZPhaseMultiplierProp;
 
     SerializedProperty onWalkForwardPressedProp;
     SerializedProperty onWalkBackwardPressedProp;
@@ -490,6 +656,7 @@ public class PlayerControllerEditor : Editor
         controlDataProp = serializedObject.FindProperty("controlData");
         playerCameraProp = serializedObject.FindProperty("playerCamera");
         headRootProp = serializedObject.FindProperty("headRoot");
+        bobRootProp = serializedObject.FindProperty("bobRoot");
 
         moveSpeedProp = serializedObject.FindProperty("moveSpeed");
         minMoveSpeedProp = serializedObject.FindProperty("minMoveSpeed");
@@ -503,6 +670,20 @@ public class PlayerControllerEditor : Editor
         leanCollisionRadiusProp = serializedObject.FindProperty("leanCollisionRadius");
         leanCollisionMaskProp = serializedObject.FindProperty("leanCollisionMask");
         leanCollisionPaddingProp = serializedObject.FindProperty("leanCollisionPadding");
+
+        enableHeadBobProp = serializedObject.FindProperty("enableHeadBob");
+        requireGroundedForBobProp = serializedObject.FindProperty("requireGroundedForBob");
+        usePhysicsGroundCheckProp = serializedObject.FindProperty("usePhysicsGroundCheck");
+        groundCheckDistanceProp = serializedObject.FindProperty("groundCheckDistance");
+        groundCheckRadiusScaleProp = serializedObject.FindProperty("groundCheckRadiusScale");
+        groundCheckMaskProp = serializedObject.FindProperty("groundCheckMask");
+        bobMinAmplitudeProp = serializedObject.FindProperty("bobMinAmplitude");
+        bobMaxAmplitudeProp = serializedObject.FindProperty("bobMaxAmplitude");
+        bobMinFrequencyProp = serializedObject.FindProperty("bobMinFrequency");
+        bobMaxFrequencyProp = serializedObject.FindProperty("bobMaxFrequency");
+        bobReturnSpeedProp = serializedObject.FindProperty("bobReturnSpeed");
+        bobAxisMultipliersProp = serializedObject.FindProperty("bobAxisMultipliers");
+        bobZPhaseMultiplierProp = serializedObject.FindProperty("bobZPhaseMultiplier");
 
         onWalkForwardPressedProp = serializedObject.FindProperty("onWalkForwardPressed");
         onWalkBackwardPressedProp = serializedObject.FindProperty("onWalkBackwardPressed");
@@ -526,6 +707,7 @@ public class PlayerControllerEditor : Editor
         EditorGUILayout.PropertyField(controlDataProp);
         EditorGUILayout.PropertyField(playerCameraProp, new GUIContent("Player Camera"));
         EditorGUILayout.PropertyField(headRootProp, new GUIContent("HeadRoot"));
+        EditorGUILayout.PropertyField(bobRootProp, new GUIContent("BobRoot"));
 
         EditorGUILayout.Space(6);
 
@@ -543,6 +725,23 @@ public class PlayerControllerEditor : Editor
         EditorGUILayout.PropertyField(leanCollisionRadiusProp, new GUIContent("Lean Collision Radius"));
         EditorGUILayout.PropertyField(leanCollisionMaskProp, new GUIContent("Lean Collision Mask"));
         EditorGUILayout.PropertyField(leanCollisionPaddingProp, new GUIContent("Lean Collision Padding"));
+
+        EditorGUILayout.Space(6);
+
+        EditorGUILayout.PropertyField(enableHeadBobProp, new GUIContent("Enable Head Bob"));
+        EditorGUILayout.PropertyField(requireGroundedForBobProp, new GUIContent("Require Grounded For Bob"));
+        EditorGUILayout.PropertyField(usePhysicsGroundCheckProp, new GUIContent("Use Physics Ground Check"));
+        EditorGUILayout.PropertyField(groundCheckDistanceProp, new GUIContent("Ground Check Distance"));
+        EditorGUILayout.PropertyField(groundCheckRadiusScaleProp, new GUIContent("Ground Check Radius Scale"));
+        EditorGUILayout.PropertyField(groundCheckMaskProp, new GUIContent("Ground Check Mask"));
+
+        EditorGUILayout.PropertyField(bobMinAmplitudeProp, new GUIContent("Bob Min Amplitude"));
+        EditorGUILayout.PropertyField(bobMaxAmplitudeProp, new GUIContent("Bob Max Amplitude"));
+        EditorGUILayout.PropertyField(bobMinFrequencyProp, new GUIContent("Bob Min Frequency"));
+        EditorGUILayout.PropertyField(bobMaxFrequencyProp, new GUIContent("Bob Max Frequency"));
+        EditorGUILayout.PropertyField(bobReturnSpeedProp, new GUIContent("Bob Return Speed"));
+        EditorGUILayout.PropertyField(bobAxisMultipliersProp, new GUIContent("Bob Axis Multipliers (X,Y,Z)"));
+        EditorGUILayout.PropertyField(bobZPhaseMultiplierProp, new GUIContent("Bob Z Phase Multiplier"));
 
         EditorGUILayout.Space(6);
 

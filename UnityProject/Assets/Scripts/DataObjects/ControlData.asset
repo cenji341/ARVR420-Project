@@ -69,4 +69,32 @@ MonoBehaviour:
     boundKey: 19
     defaultMouseButton: 0
     boundMouseButton: 0
+  - actionName: reloadWeapon
+    isKeybind: 1
+    useMouseButton: 0
+    defaultKey: 32
+    boundKey: 32
+    defaultMouseButton: 0
+    boundMouseButton: 0
+  - actionName: checkAmmo
+    isKeybind: 1
+    useMouseButton: 0
+    defaultKey: 38
+    boundKey: 38
+    defaultMouseButton: 0
+    boundMouseButton: 0
+  - actionName: cycleFireMode
+    isKeybind: 1
+    useMouseButton: 0
+    defaultKey: 16
+    boundKey: 16
+    defaultMouseButton: 0
+    boundMouseButton: 0
+  - actionName: swapShoulder
+    isKeybind: 1
+    useMouseButton: 0
+    defaultKey: 36
+    boundKey: 36
+    defaultMouseButton: 0
+    boundMouseButton: 0
   lookSpeed: 5
