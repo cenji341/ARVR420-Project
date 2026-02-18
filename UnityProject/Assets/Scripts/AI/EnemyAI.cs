@@ -4,12 +4,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class AnemyAI : MonoBehaviour
 {
-    public enum Difficulty
-    {
-        Easy,
-        Normal,
-        Hard
-    }
+    public enum Difficulty { Easy, Normal, Hard }
 
     [Header("References")]
     [SerializeField] private Transform target;
@@ -21,19 +16,26 @@ public class AnemyAI : MonoBehaviour
     [SerializeField] private float roamRadius = 12f;
     [SerializeField] private float roamPointTolerance = 1.2f;
     [SerializeField] private Vector2 roamWaitRange = new Vector2(0.5f, 2.5f);
-    [Tooltip("If true, roams around where the enemy spawned. If false, roams around its current position.")]
     [SerializeField] private bool roamAroundSpawn = true;
-    [Tooltip("How far from a random point we search to snap onto the NavMesh.")]
     [SerializeField] private float navMeshSampleDistance = 3f;
-    [Tooltip("How many attempts to find a valid roam point each pick.")]
     [SerializeField] private int roamPickAttempts = 20;
+
+    [Header("Turn Then Move")]
+    [Tooltip("If angle to the desired direction is bigger than this, the agent will turn in place first.")]
+    [SerializeField] private float turnInPlaceAngle = 25f;
+    [Tooltip("If true, the AI also rotates a bit while moving (keeps it aligned).")]
+    [SerializeField] private bool rotateWhileMoving = true;
 
     [Header("Combat")]
     [SerializeField] private float detectionRange = 18f;
     [SerializeField] private float shootingRange = 11f;
-    [SerializeField] private float fireRate = 1.2f;
+    [SerializeField] private float fireRate = 1.2f; // shots per second
     [SerializeField] private float turnSpeed = 8f;
     [SerializeField] private LayerMask obstacleMask;
+
+    [Header("Shooting Rules")]
+    [Tooltip("Only fire if facing the player within this angle.")]
+    [SerializeField] private float fireFacingAngle = 10f;
 
     [Header("Animation Parameters")]
     [SerializeField] private string walkBoolName = "IsWalking";
@@ -56,6 +58,7 @@ public class AnemyAI : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false; // IMPORTANT: we rotate manually so we can "turn then move"
 
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
@@ -74,6 +77,7 @@ public class AnemyAI : MonoBehaviour
 
     private void Update()
     {
+        // No target? roam
         if (target == null)
         {
             Roam();
@@ -84,6 +88,7 @@ public class AnemyAI : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
         bool canSeeTarget = distanceToTarget <= currentDetectionRange && HasLineOfSight();
 
+        // Lost sight? roam
         if (!canSeeTarget)
         {
             Roam();
@@ -91,10 +96,11 @@ public class AnemyAI : MonoBehaviour
             return;
         }
 
+        // See target: chase or attack
         if (distanceToTarget > currentShootingRange)
             ChaseTarget();
         else
-            AttackTarget();
+            AttackTarget(distanceToTarget);
 
         UpdateAnimator();
     }
@@ -132,6 +138,9 @@ public class AnemyAI : MonoBehaviour
         }
     }
 
+    // -------------------------
+    // Roaming
+    // -------------------------
     private void Roam()
     {
         if (!roamWhenNoTarget)
@@ -141,21 +150,37 @@ public class AnemyAI : MonoBehaviour
             return;
         }
 
-        agent.isStopped = false;
-
-        // If we arrived (or have no path), pick a new random destination after a short wait.
-        bool arrived =
+        bool hasArrived =
             !agent.pathPending &&
             agent.hasPath &&
             agent.remainingDistance <= Mathf.Max(roamPointTolerance, agent.stoppingDistance + 0.05f);
 
-        bool noValidPath =
+        bool badPath =
             !agent.pathPending &&
             (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete);
 
-        if ((arrived || noValidPath) && Time.time >= nextRoamPickTime)
+        // If we reached the point, stop and "wait" until it's time to pick another
+        if (hasArrived && Time.time < nextRoamPickTime)
+        {
+            agent.isStopped = true;
+            return;
+        }
+
+        // Pick new point when arrived (and wait expired) or path is bad
+        if ((hasArrived || badPath) && Time.time >= nextRoamPickTime)
         {
             TryPickNewRoamDestination(force: false);
+        }
+
+        // While moving along a path, turn first then move
+        if (agent.hasPath && agent.pathStatus == NavMeshPathStatus.PathComplete)
+        {
+            Vector3 moveDir = agent.steeringTarget - transform.position;
+            TurnThenMove(moveDir);
+        }
+        else
+        {
+            agent.isStopped = false; // allow path to compute if pending
         }
     }
 
@@ -179,46 +204,99 @@ public class AnemyAI : MonoBehaviour
 
                 float wait = Random.Range(roamWaitRange.x, roamWaitRange.y);
                 nextRoamPickTime = Time.time + Mathf.Max(0f, wait);
-
                 return;
             }
         }
 
-        // If we failed to find a point, try again soon.
         nextRoamPickTime = Time.time + 0.5f;
     }
 
+    // -------------------------
+    // Chase / Attack
+    // -------------------------
     private void ChaseTarget()
     {
-        agent.isStopped = false;
         agent.SetDestination(target.position);
+
+        // Use steering target (next corner) so the character faces the actual path direction
+        Vector3 moveDir = agent.steeringTarget - transform.position;
+        if (moveDir.sqrMagnitude < 0.01f)
+            moveDir = target.position - transform.position;
+
+        TurnThenMove(moveDir);
     }
 
-    private void AttackTarget()
+    private void AttackTarget(float distanceToTarget)
     {
         agent.isStopped = true;
 
-        Vector3 lookDirection = target.position - transform.position;
-        lookDirection.y = 0f;
+        Vector3 toTarget = target.position - transform.position;
+        toTarget.y = 0f;
 
-        if (lookDirection.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
-        }
+        // Always face player when close enough
+        RotateTowards(toTarget);
 
-        if (Time.time >= nextShotTime)
+        // Only shoot if:
+        // - close enough (we are in AttackTarget so yes)
+        // - line of sight still true
+        // - facing within fireFacingAngle
+        float angle = Vector3.Angle(transform.forward, toTarget.normalized);
+        bool facingEnough = angle <= fireFacingAngle;
+
+        if (facingEnough && Time.time >= nextShotTime)
         {
             nextShotTime = Time.time + (1f / Mathf.Max(currentFireRate, 0.01f));
 
             if (animator != null && !string.IsNullOrWhiteSpace(shootTriggerName))
                 animator.SetTrigger(shootTriggerName);
 
-            // Hook your damage / projectile logic here.
-            Debug.DrawLine(eyePoint.position, target.position, Color.red, 0.2f);
+            // Hook your projectile / damage logic here.
+            Debug.DrawLine(eyePoint.position, target.position + Vector3.up * 1.2f, Color.red, 0.2f);
         }
     }
 
+    // -------------------------
+    // Turn-then-move helpers
+    // -------------------------
+    private void TurnThenMove(Vector3 desiredDirection)
+    {
+        desiredDirection.y = 0f;
+        if (desiredDirection.sqrMagnitude < 0.0001f)
+        {
+            agent.isStopped = true;
+            return;
+        }
+
+        Vector3 desiredForward = desiredDirection.normalized;
+        float angle = Vector3.Angle(transform.forward, desiredForward);
+
+        if (angle > turnInPlaceAngle)
+        {
+            // Turn in place first
+            agent.isStopped = true;
+            RotateTowards(desiredForward);
+        }
+        else
+        {
+            // Now we can move
+            agent.isStopped = false;
+
+            if (rotateWhileMoving)
+                RotateTowards(desiredForward);
+        }
+    }
+
+    private void RotateTowards(Vector3 desiredForward)
+    {
+        if (desiredForward.sqrMagnitude < 0.0001f) return;
+
+        Quaternion targetRot = Quaternion.LookRotation(desiredForward, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, turnSpeed * Time.deltaTime);
+    }
+
+    // -------------------------
+    // Vision / Animation / Gizmos
+    // -------------------------
     private bool HasLineOfSight()
     {
         Vector3 origin = eyePoint.position;

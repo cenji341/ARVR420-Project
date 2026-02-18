@@ -379,19 +379,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1703147139604504, guid: d7e7ae8f6bdb1e34c88632c5154a5d68, type: 3}
       propertyPath: m_Name
-      value: SM_Chr_Insurgent_Male_04
+      value: WanderEnemy
       objectReference: {fileID: 0}
     - target: {fileID: 4873994767534494, guid: d7e7ae8f6bdb1e34c88632c5154a5d68, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.3331008
+      value: 0.031
       objectReference: {fileID: 0}
     - target: {fileID: 4873994767534494, guid: d7e7ae8f6bdb1e34c88632c5154a5d68, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.9086888
+      value: 3.25
       objectReference: {fileID: 0}
     - target: {fileID: 4873994767534494, guid: d7e7ae8f6bdb1e34c88632c5154a5d68, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9.33309
+      value: -31.42
       objectReference: {fileID: 0}
     - target: {fileID: 4873994767534494, guid: d7e7ae8f6bdb1e34c88632c5154a5d68, type: 3}
       propertyPath: m_LocalRotation.w
@@ -670,6 +670,8 @@ MonoBehaviour:
   roamAroundSpawn: 1
   navMeshSampleDistance: 3
   roamPickAttempts: 20
+  turnInPlaceAngle: 25
+  rotateWhileMoving: 1
   detectionRange: 18
   shootingRange: 11
   fireRate: 1.2
@@ -677,6 +679,7 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
+  fireFacingAngle: 10
   walkBoolName: IsWalking
   shootTriggerName: Shoot
   speedFloatName: Speed
