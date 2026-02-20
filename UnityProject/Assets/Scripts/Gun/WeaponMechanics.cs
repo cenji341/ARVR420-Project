@@ -77,6 +77,9 @@ public class WeaponMechanics : MonoBehaviour
     [SerializeField, InspectorName("AmmoReserveText")]
     TMP_Text AmmoReserveText;
 
+    [InspectorName("CheckAmmoEvent")]
+    public UnityEvent CheckAmmoEvent;
+
     [Header("Ergonomics Settings")]
     [SerializeField, InspectorName("Reload Duration")]
     float reloadDuration = 0f;
@@ -152,6 +155,7 @@ public class WeaponMechanics : MonoBehaviour
 
         if (MagDropEvent == null) MagDropEvent = new UnityEvent();
         if (MagInsertEvent == null) MagInsertEvent = new UnityEvent();
+        if (CheckAmmoEvent == null) CheckAmmoEvent = new UnityEvent();
 
         lastFireMode = fireMode;
         ApplySwitchRotationImmediate();
@@ -214,7 +218,11 @@ public class WeaponMechanics : MonoBehaviour
             PlayReloadMagazineAnimation();
         }
 
-        if (IsPressedDown("checkAmmo")) LogAction("checkAmmo");
+        if (IsPressedDown("checkAmmo"))
+        {
+            LogAction("checkAmmo");
+            CheckAmmoEvent.Invoke();
+        }
 
         if (IsPressedDown("cycleFireMode"))
         {
@@ -945,6 +953,7 @@ public class WeaponMechanicsEditor : Editor
     SerializedProperty maxReserveAmmoProp;
     SerializedProperty magazineAmmoTextProp;
     SerializedProperty ammoReserveTextProp;
+    SerializedProperty checkAmmoEventProp;
 
     SerializedProperty reloadDurationProp;
     SerializedProperty aimInDurationProp;
@@ -985,6 +994,7 @@ public class WeaponMechanicsEditor : Editor
         maxReserveAmmoProp = serializedObject.FindProperty("maxReserveAmmo");
         magazineAmmoTextProp = serializedObject.FindProperty("MagazineAmmoText");
         ammoReserveTextProp = serializedObject.FindProperty("AmmoReserveText");
+        checkAmmoEventProp = serializedObject.FindProperty("CheckAmmoEvent");
 
         reloadDurationProp = serializedObject.FindProperty("reloadDuration");
         aimInDurationProp = serializedObject.FindProperty("aimInDuration");
@@ -1057,6 +1067,7 @@ public class WeaponMechanicsEditor : Editor
             EditorGUILayout.PropertyField(maxReserveAmmoProp, new GUIContent("Max Reserve Ammo"));
             EditorGUILayout.PropertyField(magazineAmmoTextProp, new GUIContent("MagazineAmmoText"));
             EditorGUILayout.PropertyField(ammoReserveTextProp, new GUIContent("AmmoReserveText"));
+            EditorGUILayout.PropertyField(checkAmmoEventProp, new GUIContent("CheckAmmoEvent"));
 
             EditorGUI.indentLevel--;
         }

@@ -28,6 +28,9 @@
 		<relationship name="timeline">
 			<destination>{96020e69-1b41-4dc2-8f21-38c0b9e7f71e}</destination>
 		</relationship>
+		<relationship name="banks">
+			<destination>{99bf7a49-daac-4c3b-95b0-bec488cbc457}</destination>
+		</relationship>
 	</object>
 	<object class="EventMixer" id="{ec69be55-2fff-4a72-b068-29eea06e1da3}">
 		<relationship name="masterBus">
@@ -35,6 +38,9 @@
 		</relationship>
 	</object>
 	<object class="MasterTrack" id="{a934eabf-2aee-4f56-a80c-430c373b4a5b}">
+		<relationship name="modules">
+			<destination>{fa6be9a0-8b79-4fd3-b54b-e31bbbb76ef7}</destination>
+		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{82a6e69f-9690-40f2-b591-4e4c1ab6576e}</destination>
 		</relationship>
@@ -53,9 +59,9 @@
 	<object class="EventAutomatableProperties" id="{0ffd768e-3d5e-4ef1-8ec6-0f7854a8a2a6}" />
 	<object class="MarkerTrack" id="{c37ac364-655b-4ee2-8dc8-db1b64ab25ab}" />
 	<object class="Timeline" id="{96020e69-1b41-4dc2-8f21-38c0b9e7f71e}">
-		<property name="isProxyEnabled">
-			<value>false</value>
-		</property>
+		<relationship name="modules">
+			<destination>{fa6be9a0-8b79-4fd3-b54b-e31bbbb76ef7}</destination>
+		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{82a6e69f-9690-40f2-b591-4e4c1ab6576e}">
 		<relationship name="effectChain">
@@ -66,6 +72,20 @@
 		</relationship>
 		<relationship name="mixer">
 			<destination>{ec69be55-2fff-4a72-b068-29eea06e1da3}</destination>
+		</relationship>
+	</object>
+	<object class="SingleSound" id="{fa6be9a0-8b79-4fd3-b54b-e31bbbb76ef7}">
+		<property name="length">
+			<value>0.80000000000000004</value>
+		</property>
+		<property name="timelockedOffset">
+			<value>1.4000000000000001</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{ac528bbe-0345-4164-a442-f614147c68be}</destination>
+		</relationship>
+		<relationship name="audioFile">
+			<destination>{2dc6a8c7-e751-4610-8157-364645a02b24}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusEffectChain" id="{d13eb1b1-3fc0-40f2-a89c-90481187a543}">
@@ -80,6 +100,14 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{6f141a82-f493-4c9e-b5bd-539e0d3bec16}" />
+	<object class="RandomizerModulator" id="{ac528bbe-0345-4164-a442-f614147c68be}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>pitch</value>
+		</property>
+		<property name="amount">
+			<value>8.5</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{305da381-adbd-46a0-b7a4-e7d3531c7dfb}" />
 	<object class="MixerBusFader" id="{317025be-d99d-4ca2-b2ef-67cc978e3b7f}" />
 </objects>

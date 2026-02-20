@@ -15,11 +15,65 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639071764724801527
+  lastModified: 639071773406544696
   FileSizes:
   - Name: Desktop
-    Value: 816
+    Value: 920
   Exists: 1
+--- !u!114 &-3696092182618834402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/FireSelectSwitch
+  m_EditorClassIdentifier: 
+  Path: event:/FireSelectSwitch
+  Guid:
+    Data1: 1445075356
+    Data2: 1177773725
+    Data3: 389358222
+    Data4: -1139941322
+  Banks:
+  - {fileID: 1363749594306007137}
+  IsStream: 1
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 200
+--- !u!114 &-2118554140929739931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb653cd98e289a4e8697a1af55201f2, type: 3}
+  m_Name: event:/MagIn
+  m_EditorClassIdentifier: 
+  Path: event:/MagIn
+  Guid:
+    Data1: 1510866096
+    Data2: 1255416177
+    Data3: 2060470973
+    Data4: -525781916
+  Banks:
+  - {fileID: 1363749594306007137}
+  IsStream: 0
+  Is3D: 0
+  IsOneShot: 1
+  Parameters: []
+  MinDistance: 1
+  MaxDistance: 20
+  Length: 800
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38,16 +92,22 @@ MonoBehaviour:
   - {fileID: 1363749594306007137}
   EditorEvents:
   - {fileID: 1242789403510616600}
+  - {fileID: -2118554140929739931}
+  - {fileID: -3696092182618834402}
   EditorParameters: []
   MasterBanks:
   - {fileID: 1178382725364072582}
   StringsBanks:
   - {fileID: -5630234206159334926}
   cacheVersion: 131858
-  cacheTime: 639071764725411492
+  cacheTime: 639071773408123755
   SerializableEventsDict:
   - key: event:/MagOut
     index: 0
+  - key: event:/MagIn
+    index: 1
+  - key: event:/FireSelectSwitch
+    index: 2
 --- !u!114 &1178382725364072582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,7 +123,7 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639071764724781531
+  lastModified: 639071773406534704
   FileSizes:
   - Name: Desktop
     Value: 1074
@@ -110,8 +170,8 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Weapon.bank
   Name: Weapon
   StudioPath: bank:/Weapon
-  lastModified: 639071764725411492
+  lastModified: 639071773408123755
   FileSizes:
   - Name: Desktop
-    Value: 33536
+    Value: 130944
   Exists: 1
