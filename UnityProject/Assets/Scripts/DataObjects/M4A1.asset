@@ -15,7 +15,7 @@ MonoBehaviour:
   magazine:
   - attachmentName: 20RoundMag
     isUnlocked: 1
-    isEquipped: 0
+    isEquipped: 1
     attachmentPrefab: {fileID: 1675174649049174, guid: 550ad6766efc3ac4c8a69d6e2597cff9, type: 3}
     equippedLocalPosition: {x: 0, y: -0.01, z: 0.1625}
     equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
@@ -55,7 +55,7 @@ MonoBehaviour:
       Set: 1
   - attachmentName: 60RoundMag
     isUnlocked: 1
-    isEquipped: 1
+    isEquipped: 0
     attachmentPrefab: {fileID: 1713737723348446, guid: 239ede39d6b1274439f33c16da2c2782, type: 3}
     equippedLocalPosition: {x: 0, y: -0.008, z: 0.15}
     equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
@@ -80,10 +80,10 @@ MonoBehaviour:
   foregrip: []
   picatinny:
   - attachmentName: BalderPro
-    isUnlocked: 0
-    isEquipped: 0
-    attachmentPrefab: {fileID: 0}
-    equippedLocalPosition: {x: 0, y: 0, z: 0}
+    isUnlocked: 1
+    isEquipped: 1
+    attachmentPrefab: {fileID: 1811394170621162, guid: 586a040cfc875724c95309a40be7a379, type: 3}
+    equippedLocalPosition: {x: 0, y: 0.0345, z: 0.5}
     equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
     aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
     equippedAttachmentModifiers: []

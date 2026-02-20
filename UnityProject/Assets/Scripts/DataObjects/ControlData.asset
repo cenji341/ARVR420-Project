@@ -97,4 +97,4 @@ MonoBehaviour:
     boundKey: 36
     defaultMouseButton: 0
     boundMouseButton: 0
-  lookSpeed: 5
+  lookSpeed: 10
