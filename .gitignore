@@ -1,16 +1,16 @@
 ############################################
-# UNITY PROJECT (nested)
+# UNITY PROJECT (nested under UnityProject/)
 ############################################
 
-UnityProject/My project/[Ll]ibrary/
-UnityProject/My project/[Tt]emp/
-UnityProject/My project/[Oo]bj/
-UnityProject/My project/[Bb]uild/
-UnityProject/My project/[Bb]uilds/
-UnityProject/My project/[Ll]ogs/
-UnityProject/My project/[Uu]ser[Ss]ettings/
-UnityProject/My project/[Mm]emoryCaptures/
-UnityProject/My project/[Rr]ecordings/
+UnityProject/[Ll]ibrary/
+UnityProject/[Tt]emp/
+UnityProject/[Oo]bj/
+UnityProject/[Bb]uild/
+UnityProject/[Bb]uilds/
+UnityProject/[Ll]ogs/
+UnityProject/[Uu]ser[Ss]ettings/
+UnityProject/[Mm]emoryCaptures/
+UnityProject/[Rr]ecordings/
 
 ############################################
 # GENERAL UNITY IGNORES (safe to keep)
@@ -43,7 +43,7 @@ sysinfo.txt
 mono_crash.*
 
 ############################################
-# BUILDS
+# BUILDS / EXPORTS
 ############################################
 
 *.apk
@@ -56,6 +56,8 @@ mono_crash.*
 ############################################
 
 .vs/
+.idea/
+.vscode/
 .gradle/
 .consulo/
 ExportedObj/
@@ -65,12 +67,12 @@ ExportedObj/
 # ADDRESSABLES / TEST / VISUAL SCRIPTING
 ############################################
 
-UnityProject/My project/Assets/StreamingAssets/aa*
-UnityProject/My project/Assets/AddressableAssetsData/**/addressables_content_state.bin
-UnityProject/My project/Assets/Addressables_Temp*
-UnityProject/My project/Assets/Unity.VisualScripting.Generated/
+UnityProject/Assets/StreamingAssets/aa*
+UnityProject/Assets/AddressableAssetsData/**/addressables_content_state.bin
+UnityProject/Assets/Addressables_Temp*
+UnityProject/Assets/Unity.VisualScripting.Generated/
 
 ############################################
 # OPTIONAL (leave commented unless needed)
 ############################################
-# UnityProject/My project/Assets/AssetStoreTools*
+# UnityProject/Assets/AssetStoreTools*
