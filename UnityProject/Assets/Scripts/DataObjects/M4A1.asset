@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e0ae257d72f27946b612708e2e96c1a, type: 3}
+  m_Name: M4A1
+  m_EditorClassIdentifier: 
+  magazine:
+  - attachmentName: 20RoundMag
+    isUnlocked: 1
+    isEquipped: 1
+    attachmentPrefab: {fileID: 1675174649049174, guid: 550ad6766efc3ac4c8a69d6e2597cff9, type: 3}
+    equippedLocalPosition: {x: 0, y: -0.01, z: 0.1625}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
+    equippedAttachmentModifiers:
+    - targetValueName: magazineCapacity
+      targetValueValue: 20
+      Add: 0
+      Set: 1
+    - targetValueName: reloadDuration
+      targetValueValue: 1
+      Add: 0
+      Set: 1
+    - targetValueName: aimInDuration
+      targetValueValue: -0.1
+      Add: 1
+      Set: 0
+    - targetValueName: aimOutDuration
+      targetValueValue: -0.1
+      Add: 1
+      Set: 0
+  - attachmentName: 30RoundMag
+    isUnlocked: 1
+    isEquipped: 0
+    attachmentPrefab: {fileID: 1407110048202902, guid: 37af3ea05f65d6b4e9a908218ae4786c, type: 3}
+    equippedLocalPosition: {x: 0, y: -0.018, z: 0.1615}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
+    equippedAttachmentModifiers:
+    - targetValueName: magazineCapacity
+      targetValueValue: 30
+      Add: 0
+      Set: 1
+    - targetValueName: reloadDuration
+      targetValueValue: 1.5
+      Add: 0
+      Set: 1
+  - attachmentName: 60RoundMag
+    isUnlocked: 1
+    isEquipped: 0
+    attachmentPrefab: {fileID: 1713737723348446, guid: 239ede39d6b1274439f33c16da2c2782, type: 3}
+    equippedLocalPosition: {x: 0, y: -0.008, z: 0.15}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
+    equippedAttachmentModifiers:
+    - targetValueName: magazineCapacity
+      targetValueValue: 60
+      Add: 0
+      Set: 1
+    - targetValueName: reloadDuration
+      targetValueValue: 2
+      Add: 0
+      Set: 1
+    - targetValueName: aimInDuration
+      targetValueValue: 0.1
+      Add: 1
+      Set: 0
+    - targetValueName: aimOutDuration
+      targetValueValue: 0.1
+      Add: 1
+      Set: 0
+  foregrip: []
+  picatinny:
+  - attachmentName: BalderPro
+    isUnlocked: 1
+    isEquipped: 1
+    attachmentPrefab: {fileID: 1811394170621162, guid: 586a040cfc875724c95309a40be7a379, type: 3}
+    equippedLocalPosition: {x: 0, y: 0.0345, z: 0.5}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
+    equippedAttachmentModifiers: []
+  scope:
+  - attachmentName: Default
+    isUnlocked: 1
+    isEquipped: 1
+    attachmentPrefab: {fileID: 4804317896105582468, guid: 1230a19ef94899d44a11ddb97e4af416, type: 3}
+    equippedLocalPosition: {x: 0, y: 0, z: 0}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: -0.18, z: 0.25}
+    equippedAttachmentModifiers: []
+  - attachmentName: RedDotSight
+    isUnlocked: 1
+    isEquipped: 0
+    attachmentPrefab: {fileID: 1242899488601990, guid: 102c0991da23e1e4181ea5e3694aa8ce, type: 3}
+    equippedLocalPosition: {x: 0, y: 0.1365, z: 0.1}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: -0.18, z: 0.25}
+    equippedAttachmentModifiers:
+    - targetValueName: aimInDuration
+      targetValueValue: 0.05
+      Add: 1
+      Set: 0
+    - targetValueName: aimOutDuration
+      targetValueValue: 0.05
+      Add: 1
+      Set: 0
+  muzzle:
+  - attachmentName: Default
+    isUnlocked: 0
+    isEquipped: 0
+    attachmentPrefab: {fileID: 0}
+    equippedLocalPosition: {x: 0, y: 0, z: 0}
+    equippedLocalRotationEuler: {x: 0, y: 0, z: 0}
+    aimDownSightLocalPosition: {x: 0, y: 0, z: 0}
+    equippedAttachmentModifiers: []

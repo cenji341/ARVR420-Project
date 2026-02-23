@@ -383,7 +383,7 @@ MonoBehaviour:
   sourceProjectPath: ../FMODProject/ARVR420FMOD/ARVR420FMOD.fspro
   sourceBankPath: ../FMODProject/ARVR420FMOD/Build
   sourceBankPathUnformatted: 
-  BankRefreshCooldown: 5
+  BankRefreshCooldown: 1
   ShowBankRefreshWindow: 1
   AutomaticEventLoading: 1
   BankLoadType: 0
@@ -403,8 +403,10 @@ MonoBehaviour:
   VirtualChannelSettings: []
   RealChannelSettings: []
   Plugins: []
-  MasterBanks: []
-  Banks: []
+  MasterBanks:
+  - Master
+  Banks:
+  - Weapon
   BanksToLoad: []
   LiveUpdatePort: 9264
   EnableMemoryTracking: 0
