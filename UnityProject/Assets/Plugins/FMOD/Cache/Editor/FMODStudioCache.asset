@@ -15,7 +15,7 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Master.strings.bank
   Name: Master.strings
   StudioPath: bank:/Master.strings
-  lastModified: 639071773406544696
+  lastModified: 639074515593429617
   FileSizes:
   - Name: Desktop
     Value: 920
@@ -100,7 +100,7 @@ MonoBehaviour:
   StringsBanks:
   - {fileID: -5630234206159334926}
   cacheVersion: 131858
-  cacheTime: 639071773408123755
+  cacheTime: 639074515593434718
   SerializableEventsDict:
   - key: event:/MagOut
     index: 0
@@ -123,7 +123,7 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Master.bank
   Name: Master
   StudioPath: bank:/Master
-  lastModified: 639071773406534704
+  lastModified: 639074515593429617
   FileSizes:
   - Name: Desktop
     Value: 1074
@@ -170,7 +170,7 @@ MonoBehaviour:
   Path: ../FMODProject/ARVR420FMOD/Build/Desktop/Weapon.bank
   Name: Weapon
   StudioPath: bank:/Weapon
-  lastModified: 639071773408123755
+  lastModified: 639074515593434718
   FileSizes:
   - Name: Desktop
     Value: 130944
